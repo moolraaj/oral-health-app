@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     try {
         await dbConnect();
         let {page,skip,limit}=ReusePaginationMethod(req)
-        const lesions = await LesionModel.find().populate('submittedBy', 'name _id').skip(skip).limit(limit).exec();
+        const lesions = await LesionModel.find().populate('submittedBy', 'name _id').populate('assignedToAdmins', '_id name').skip(skip).limit(limit).exec();
         const totalLesions=await LesionModel.countDocuments()
         return NextResponse.json({
             message: 'Lesions retrieved successfully!',

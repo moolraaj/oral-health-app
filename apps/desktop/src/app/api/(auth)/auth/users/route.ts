@@ -1,43 +1,69 @@
- 
-import { dbConnect } from '@/database/database'
-import User from '@/models/User'
-import { ReusePaginationMethod } from '@/utils/Pagination'
-import { NextRequest, NextResponse } from 'next/server'
- 
- 
+import { dbConnect } from '@/database/database';
+import User from '@/models/User';
+import { ReusePaginationMethod } from '@/utils/Pagination';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {
-    await dbConnect()
+    await dbConnect();
+    const { page, limit, skip } = ReusePaginationMethod(req);
 
- 
-    const { page, limit, skip } = ReusePaginationMethod(req)
+    const role = req.nextUrl.searchParams.get('role');
 
- 
-    const users = await User.find({})
+    const query: Record<string, any> = {};
+    if (role) {
+      query.role = role;
+    }
+
+
+    const users = await User.find(query, {
+      id: 1,
+      name: 1,
+      emai: 1,
+      phoneNumber: 1,
+      role: 1,
+      status: 1
+    })
       .skip(skip)
       .limit(limit)
-      .exec()
+      .exec();
 
- 
-    const totalUsers = await User.countDocuments()
+    const totalFilteredUsers = await User.countDocuments(query);
 
- 
+
+    let roleCounts: Record<string, number> = {};
+
+    if (role) {
+
+      roleCounts[role] = totalFilteredUsers;
+    } else {
+
+      const roles = await User.aggregate([
+        { $group: { _id: '$role', count: { $sum: 1 } } },
+      ]);
+
+      roleCounts = roles.reduce((acc, curr) => {
+        acc[curr._id] = curr.count;
+        return acc;
+      }, {});
+    }
+
     return NextResponse.json(
       {
         message: 'Users retrieved successfully',
         users,
-        total: totalUsers,
+        total: totalFilteredUsers,
+        roles: roleCounts,
         page,
-        limit
+        limit,
       },
       { status: 200 }
-    )
+    );
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return NextResponse.json(
       { error: 'Server error while fetching users.' },
       { status: 500 }
-    )
+    );
   }
 }

@@ -10,9 +10,11 @@ interface Lesion extends Document {
   duration: string;
   habits: string;
   previousDentalTreatments: string;
-  submittedBy: mongoose.Schema.Types.ObjectId;  
-  assignedToAdmins?: mongoose.Schema.Types.ObjectId[]; 
-  images: string[];  
+  submittedBy: mongoose.Schema.Types.ObjectId;
+  assignedToAdmins?: mongoose.Schema.Types.ObjectId[];
+  images: string[];
+  adminConfirmed: boolean;
+
 }
 
 const lesionSchema = new Schema<Lesion>({
@@ -56,17 +58,21 @@ const lesionSchema = new Schema<Lesion>({
   },
   submittedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',  
+    ref: 'users',
     required: [true, 'sender  is required'],
   },
-  assignedToAdmins: {
+  assignedToAdmins: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',  
-    required: [true, 'recevier is required by is required'],
-  },
+    ref: 'users',
+    
+  }],
   images: {
-    type: [String],  
+    type: [String],
     required: [true, 'Image URLs are required'],
+  },
+  adminConfirmed: {
+    type: Boolean,
+    default: false,
   },
 });
 

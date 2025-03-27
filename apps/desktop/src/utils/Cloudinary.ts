@@ -1,35 +1,37 @@
 import { v2 as cloudinary } from 'cloudinary';
+import { API_KEY, API_SECRET, CLOUD_APP_NAME, CLOUD_NAME } from './Constants';
 
 cloudinary.config({
-    cloud_name: 'do6qy56kf',   
-    api_key: '888443219665931',        
-    api_secret: 'YJE-bgUxrpRLrGcVqNICTqq_otA',   
+    cloud_name:  CLOUD_NAME,   
+    api_key:  API_KEY,        
+    api_secret:  API_SECRET,   
   });
   
 
  
 export const uploadPhotoToCloudinary = async (photo: Blob) => {
   return new Promise<string>((resolve, reject) => {
-    // Convert Blob to ArrayBuffer
+ 
     photo.arrayBuffer()
       .then((buffer) => {
-        const bufferObj = Buffer.from(buffer);  // Convert ArrayBuffer to Buffer
+        const bufferObj = Buffer.from(buffer);  
 
-        // Ensure you're using the correct Cloudinary v2 uploader method
+        
         cloudinary.uploader.upload_stream(
-          { folder: 'o_h_app' }, // Cloudinary folder name
+          { folder: CLOUD_APP_NAME }, 
           (error, result) => {
             if (error) {
-              console.error('Cloudinary upload error:', error);  // Log any upload errors
+              console.error('Cloudinary upload error:', error);   
               reject(new Error('Failed to upload photo to Cloudinary'));
             } else {
-              resolve(result.secure_url); // Return the URL of the uploaded photo
+              //@ts-ignore
+              resolve(result.secure_url);  
             }
           }
-        ).end(bufferObj); // Pass the Buffer to Cloudinary
+        ).end(bufferObj);  
       })
       .catch((error) => {
-        console.error('Error converting photo to buffer:', error);  // Log buffer conversion errors
+        console.error('Error converting photo to buffer:', error);  
         reject(new Error('Error converting photo to buffer'));
       });
   });
