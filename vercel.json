@@ -1,0 +1,12 @@
+{
+    "version": 2,
+    "buildspaces": "apps/desktop,apps/mobile",
+    "builds": [
+      { "src": "apps/desktop/package.json", "use": "@vercel/node" },
+      { "src": "apps/mobile/package.json", "use": "@vercel/node" }
+    ],
+    "routes": [
+      { "src": "/desktop/(.*)", "dest": "apps/desktop/$1" },
+      { "src": "/mobile/(.*)", "dest": "apps/mobile/$1" }
+    ]
+  }

@@ -1,7 +1,10 @@
 {
   "name": "o_h_app_2025",
   "private": true,
-
+  "workspaces": [
+    "apps/desktop",
+    "apps/mobile"
+  ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -21,7 +24,8 @@
   },
   "packageManager": "pnpm@10.7.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
   },
   "version": "1.0.0",
   "dependencies": {
