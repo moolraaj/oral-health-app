@@ -24,7 +24,7 @@
   },
   "packageManager": "pnpm@10.7.0",
   "engines": {
-    "node": "18.x || 20.x",
+    "node": "18.x",
     "pnpm": "10.x"
   },
   "version": "1.0.0",

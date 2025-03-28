@@ -1,11 +1,13 @@
 {
     "version": 2,
     "builds": [
-      { "src": "apps/desktop/package.json", "use": "@vercel/next" },
-      { "src": "apps/mobile/package.json", "use": "@vercel/node" }
+      {
+        "src": "package.json",
+        "use": "@vercel/node@18.x"
+      }
     ],
-    "routes": [
-      { "src": "/desktop/(.*)", "dest": "apps/desktop/$1" },
-      { "src": "/mobile/(.*)", "dest": "apps/mobile/$1" }
-    ]
+    "engines": {
+      "node": "18.x",
+      "pnpm": "10.x"
+    }
   }
