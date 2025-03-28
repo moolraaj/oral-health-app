@@ -3,11 +3,10 @@
     "builds": [
       {
         "src": "package.json",
-        "use": "@vercel/node@18.x"
+        "use": "@vercel/node"
       }
     ],
-    "engines": {
-      "node": "18.x",
-      "pnpm": "10.x"
-    }
+    "routes": [
+      { "src": "/(.*)", "dest": "/" }
+    ]
   }
