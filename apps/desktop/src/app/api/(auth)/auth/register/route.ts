@@ -1,4 +1,4 @@
- 
+
 import { dbConnect } from '@/database/database';
 import User from '@/models/User';
 import VerificationToken from '@/models/VerificationToken';
@@ -6,13 +6,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { sendApprovalEmail } from '@/utils/Email';
- 
+import { Users } from '@/utils/Types';
+
 
 export async function POST(req: NextRequest) {
   try {
     const { name, email, password, phoneNumber, role } = await req.json();
 
-    // Check required fields
+
     if (!name || !email || !password || !phoneNumber) {
       return NextResponse.json(
         { error: 'Name, email, password, and phone number are required.' },
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
 
-    // Check for duplicate email or phone number
+
     const existingUserByEmail = await User.findOne({ email });
     if (existingUserByEmail) {
       return NextResponse.json(
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
       status,
     });
 
-    // ✅ Newly Added logic (send email if role is admin/ambassador)
+
     if (status === 'pending') {
       const token = crypto.randomBytes(32).toString('hex');
 
@@ -67,10 +68,18 @@ export async function POST(req: NextRequest) {
         createdAt: new Date(),
       });
 
-     
-    
 
-      await sendApprovalEmail( newUser, token);
+
+
+      const newUserObj = newUser.toObject();
+      const userToSend: Users = {
+        ...newUserObj,
+        _id: String(newUserObj._id),
+        phoneNumber: Number(newUserObj.phoneNumber),
+      };
+      await sendApprovalEmail(userToSend, token);
+
+
     }
 
     return NextResponse.json(

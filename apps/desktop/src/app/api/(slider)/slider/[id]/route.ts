@@ -4,7 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { getLanguage } from '@/utils/FilterLanguages';
 import { uploadPhotoToCloudinary } from '@/utils/Cloudinary';
-import { IBody } from '@/utils/Types';
+import { SBody } from '@/utils/Types';
+ 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             return NextResponse.json({ success: false, message: 'Slider not found' }, { status: 404 });
         }
 
-        let localizedData: any;
+        let localizedData;
         if (lang === 'en' || lang === 'kn') {
 
             localizedData = {
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 sliderImage: slide.sliderImage,
                 text: { [lang]: slide.text?.[lang] || "" },
                 description: { [lang]: slide.description?.[lang] || "" },
-                body: slide.body.map((b: IBody) => ({
+                body: slide.body.map((b: SBody) => ({
                     image: b.image,
                     text: { [lang]: b.text?.[lang] || "" },
                     description: { [lang]: b.description?.[lang] || "" },
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 sliderImage: slide.sliderImage,
                 text: slide.text,
                 description: slide.description,
-                body: slide.body.map((b: IBody) => ({
+                body: slide.body.map((b: SBody) => ({
                     image: b.image,
                     text: b.text,
                     description: b.description,
@@ -134,11 +135,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           bodyItems = JSON.parse(bodyJson);
           if (!Array.isArray(bodyItems)) throw new Error('Body must be an array');
         } catch (err) {
-          return NextResponse.json({ success: false, message: 'Invalid body JSON' }, { status: 400 });
+          if (err instanceof Error) {
+            return NextResponse.json({ success: false, message: 'Invalid body JSON' }, { status: 400 });
+          }
+          
         }
   
          const updatedBody = await Promise.all(
-          bodyItems.map(async (item: any, index: number) => {
+          bodyItems.map(async (item: SBody, index: number) => {
              let bodyImageUrl = item.image;
             const bodyImageFile = formData.get(`bodyImage${index}`) as File | null;
             if (bodyImageFile && bodyImageFile.size > 0) {
@@ -160,9 +164,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       await slider.save();
   
       return NextResponse.json({ status: 200, success: true, message: 'Slider updated', data: slider });
-    } catch (error) {
-      console.error('Slider Update Error:', error);
-      return NextResponse.json({ success: false, message: 'Failed to update slider' }, { status: 500 });
+    } catch (err) {
+      if(err instanceof Error){
+        return NextResponse.json({ success: false, message: 'Failed to update slider' }, { status: 500 });
+      }
     }
   }
 

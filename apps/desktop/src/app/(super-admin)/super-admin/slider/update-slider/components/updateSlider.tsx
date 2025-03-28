@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useUpdateSliderMutation, useGetSingleSliderQuery } from '@/(store)/services/slider/sliderApi';
+import { SBody } from '@/utils/Types';
 
 interface Id {
   id: string;
@@ -12,44 +13,45 @@ interface Id {
 const UpdateSlider = ({ id }: Id) => {
   const router = useRouter();
 
- 
+
   const { data, isLoading } = useGetSingleSliderQuery({ id });
   const [updateSlider] = useUpdateSliderMutation();
 
- 
+
   const [sliderImage, setSliderImage] = useState<File | null>(null);
- 
+
   const [sliderImageUrl, setSliderImageUrl] = useState<string>('');
   const [text, setText] = useState({ en: '', kn: '' });
   const [description, setDescription] = useState({ en: '', kn: '' });
- 
+
   const [bodyItems, setBodyItems] = useState<
     { text: { en: string; kn: string }; description: { en: string; kn: string }; image: File | string | null }[]
   >([]);
 
   useEffect(() => {
-    if (data && data.data) {
-      const sliderData = data.data;
+    if (data) {
+      const sliderData = data;
       setText(sliderData.text);
       setDescription(sliderData.description);
       setSliderImageUrl(sliderData.sliderImage);
       setBodyItems(
         sliderData.body && Array.isArray(sliderData.body)
-          ? sliderData.body.map((item: any) => ({
+          ? sliderData.body.map((item: SBody) => ({
               text: item.text,
               description: item.description,
-              image: item.image,  
+              image: item.image,
             }))
           : []
       );
     }
   }, [data]);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const formData = new FormData();
-  
+
     if (sliderImage) formData.append('sliderImage', sliderImage);
     formData.append('text', JSON.stringify(text));
     formData.append('description', JSON.stringify(description));
@@ -58,7 +60,7 @@ const UpdateSlider = ({ id }: Id) => {
       JSON.stringify(bodyItems.map((b) => ({ text: b.text, description: b.description })))
     );
 
-   
+
     bodyItems.forEach((item, index) => {
       if (item.image && item.image instanceof File) {
         formData.append(`bodyImage${index}`, item.image);
@@ -71,16 +73,34 @@ const UpdateSlider = ({ id }: Id) => {
         toast.success('Slider updated successfully');
         router.push('/super-admin/slider');
       }
-    } catch (error: any) {
-      toast.error('Failed to update slider');
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error('Failed to update slider');
+
+      }
     }
   };
 
-  const handleBodyChange = (index: number, field: string, lang: string, value: string) => {
-    const updatedBody = [...bodyItems];
-    (updatedBody[index] as any)[field][lang] = value;
-    setBodyItems(updatedBody);
+  const handleBodyChange = (
+    index: number,
+    field: "text" | "description",
+    lang: "en" | "kn",
+    value: string
+  ) => {
+    setBodyItems((prevBodyItems) => {
+      const updatedItems = [...prevBodyItems];
+      const currentItem = updatedItems[index];
+      updatedItems[index] = {
+        ...currentItem,
+        [field]: {
+          ...currentItem[field],
+          [lang]: value,
+        },
+      };
+      return updatedItems;
+    });
   };
+
 
   const handleImageChange = (index: number, file: File | null) => {
     const updated = [...bodyItems];
@@ -88,7 +108,7 @@ const UpdateSlider = ({ id }: Id) => {
     setBodyItems(updated);
   };
 
- 
+
 
   if (isLoading || !data) return <div>Loading...</div>;
 
@@ -96,7 +116,7 @@ const UpdateSlider = ({ id }: Id) => {
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-5 bg-gray-100 rounded">
       <h2 className="text-xl font-bold">Update Slider</h2>
 
-   
+
       <input
         type="file"
         accept="image/*"
@@ -164,7 +184,7 @@ const UpdateSlider = ({ id }: Id) => {
             onChange={(e) => handleBodyChange(index, 'description', 'kn', e.target.value)}
           />
 
-      
+
           <input
             type="file"
             accept="image/*"
@@ -186,11 +206,11 @@ const UpdateSlider = ({ id }: Id) => {
             )
           ) : null}
 
-         
+
         </div>
       ))}
 
-     
+
 
       <button type="submit" className="bg-blue-500 text-white p-3 rounded">
         Update

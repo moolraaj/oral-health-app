@@ -3,15 +3,9 @@
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
 import { useState } from "react";
 import { UserCheck } from "lucide-react";
+import { Users } from "@/utils/Types";
 
-interface IUser {
-  _id: string;
-  name: string;
-  email: string;
-  phoneNumber: string;
-  role: 'user' | 'admin' | 'ambassador' | 'super-admin';
-  status: 'pending' | 'approved' | 'rejected';
-}
+ 
 
 export default function ManageAmbassadors() {
   const { data: ambassadorData, isLoading: ambassadorLoading, refetch: refetchAmbassadors } = useGetUsersQuery({
@@ -24,7 +18,7 @@ export default function ManageAmbassadors() {
 
   const updateUser = async (id: string, action: "approved" | "rejected", currentRole: string) => {
     setActionLoading(true);
-    let body: any = {
+    const body = {
       status: action,
       role: action === "approved"
         ? (currentRole === "admin" || currentRole === "ambassador" ? currentRole : "admin")
@@ -43,8 +37,11 @@ export default function ManageAmbassadors() {
       } else {
         alert(data.error || "Failed to update user.");
       }
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      if(err instanceof Error){
+
+        alert(err.message);
+      }
     } finally {
       setActionLoading(false);
     }
@@ -61,7 +58,7 @@ export default function ManageAmbassadors() {
           </h2>
 
           <div className="ambass_wrapper">
-            {ambassadorData?.users.map((ele: IUser) => (
+            {ambassadorData?.users.map((ele: Users) => (
               <div key={ele._id} className="s_ambassa border p-3 mb-4 rounded shadow">
                 <ul className="ambass_list u_lists">
                   <li><strong>Name:</strong> {ele.name}</li>

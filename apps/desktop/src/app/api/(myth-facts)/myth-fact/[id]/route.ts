@@ -5,6 +5,7 @@ import { EN, KN } from '@/utils/Constants';
 import { getLanguage } from '@/utils/FilterLanguages';
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadPhotoToCloudinary } from '@/utils/Cloudinary';
+import { FaqsRightFacts, FaqsWrongFacts } from '@/utils/Types';
 
  
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -34,10 +35,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           myth_fact_body: { [lang]: item.myth_fact_body?.[lang] || '' },
           myth_fact_heading: { [lang]: item.myth_fact_heading?.[lang] || '' },
           myth_fact_description: { [lang]: item.myth_fact_description?.[lang] || '' },
-          myths_facts_wrong_fact: item.myths_facts_wrong_fact?.map((fact: any) => ({
+          myths_facts_wrong_fact: item.myths_facts_wrong_fact?.map((fact: FaqsWrongFacts) => ({
             [lang]: fact?.[lang] || '',
           })) || [],
-          myths_facts_right_fact: item.myths_facts_right_fact?.map((fact: any) => ({
+          myths_facts_right_fact: item.myths_facts_right_fact?.map((fact: FaqsRightFacts) => ({
             [lang]: fact?.[lang] || '',
           })) || [],
           createdAt: item.createdAt,

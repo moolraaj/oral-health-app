@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
 import { uploadPhotoToCloudinary } from '@/utils/Cloudinary';
 import Slider from '@/models/Slider';
+import { SBody } from '@/utils/Types';
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,11 +27,14 @@ export async function POST(req: NextRequest) {
       bodyItems = JSON.parse(bodyJson);
       if (!Array.isArray(bodyItems)) throw new Error('Body must be an array');
     } catch (err) {
-      return NextResponse.json({ success: false, message: 'Invalid body JSON' }, { status: 400 });
+      if(err instanceof Error){
+        return NextResponse.json({ success: false, message: 'Invalid body JSON' }, { status: 400 });
+      }
+      
     }
     
     const bodyWithImages = await Promise.all(
-      bodyItems.map(async (item: any, index: number) => {
+      bodyItems.map(async (item:SBody, index: number) => {
         let bodyImageUrl = item.image;
         if (!bodyImageUrl) {
           const bodyImageFile = formData.get(`bodyImage${index}`) as File;
@@ -59,8 +63,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message:"slide created successfully",status:201,success: true, data: newSlider });
 
-  } catch (error) {
-    console.error('Slider Create Error:', error);
-    return NextResponse.json({ success: false, message: 'Failed to create slider' }, { status: 500 });
+  } catch (err) {
+    if(err instanceof Error){
+      return NextResponse.json({ success: false, message: 'Failed to create slider' }, { status: 500 });
+    }
   }
 }

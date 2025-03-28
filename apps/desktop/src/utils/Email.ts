@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { Users } from './Types';
 
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -11,7 +12,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export const sendApprovalEmail = async (newUser: any, token: string) => {
+export const sendApprovalEmail = async (newUser: Users, token: string) => {
     const approvalLink = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify/${token}?action=approve`;
     const rejectionLink = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify/${token}?action=reject`;
 

@@ -3,6 +3,8 @@ import MythFact from '@/models/MythFact';
 import { EN, KN } from '@/utils/Constants';
 import { getLanguage } from '@/utils/FilterLanguages';
 import { ReusePaginationMethod } from '@/utils/Pagination';
+import { FaqsRightFacts,   FaqsWrongFacts } from '@/utils/Types';
+ 
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -14,7 +16,7 @@ export async function GET(request: NextRequest) {
     const allFacts = await MythFact.find().limit(limit).skip(skip).lean();
     const totalResults = await MythFact.countDocuments();
 
-    const localizedData = allFacts.map((item: any) => {
+    const localizedData = allFacts.map((item) => {
       if (lang === EN || lang === KN) {
         return {
           _id: item._id,
@@ -23,10 +25,10 @@ export async function GET(request: NextRequest) {
           myth_fact_body: { [lang]: item.myth_fact_body?.[lang] || '' },
           myth_fact_heading: { [lang]: item.myth_fact_heading?.[lang] || '' },
           myth_fact_description: { [lang]: item.myth_fact_description?.[lang] || '' },
-          myths_facts_wrong_fact: item.myths_facts_wrong_fact?.map((fact: any) => ({
+          myths_facts_wrong_fact: item.myths_facts_wrong_fact?.map((fact: FaqsWrongFacts) => ({
             [lang]: fact?.[lang] || '',
           })) || [],
-          myths_facts_right_fact: item.myths_facts_right_fact?.map((fact: any) => ({
+          myths_facts_right_fact: item.myths_facts_right_fact?.map((fact: FaqsRightFacts) => ({
             [lang]: fact?.[lang] || '',
           })) || [],
           createdAt: item.createdAt,

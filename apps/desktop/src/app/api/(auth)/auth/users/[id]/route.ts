@@ -2,18 +2,20 @@
 
 
 import { dbConnect } from '@/database/database';
-import User from '@/models/User';
+
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import VerificationToken from '@/models/VerificationToken';
 import { sendApprovalEmail } from '@/utils/Email';
+import { Users } from '@/utils/Types';
+import User from '@/models/User';
 
 
 
 // get single user
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: String }> }) {
-  let id = (await params).id
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id
   await dbConnect()
   if (!id) {
     return NextResponse.json({ error: 'User ID is missing' }, { status: 400 });
@@ -28,8 +30,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 
 // delete single user
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: String }> }) {
-  let id = (await params).id
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id
   await dbConnect()
   if (!id) {
     return NextResponse.json({ error: 'User ID is missing' }, { status: 400 });
@@ -58,12 +60,13 @@ export async function PUT(
     return NextResponse.json({ error: 'User ID is missing' }, { status: 400 });
   }
 
-  const currentUser = await User.findById(id);
+  const currentUser = await User.findById({ _id: id });
   if (!currentUser) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const updateFields: { [key: string]: any } = {};
+ 
+  const updateFields: Partial<Users> = {};
 
   if (name) updateFields.name = name;
   if (email && email !== currentUser.email) {
@@ -73,10 +76,9 @@ export async function PUT(
     }
     updateFields.email = email;
   }
-  if (phoneNumber) updateFields.phoneNumber = phoneNumber;
+  if (phoneNumber) updateFields.phoneNumber = Number(phoneNumber);
   if (password) updateFields.password = await bcrypt.hash(password, 10);
 
- 
   if (status) {
     updateFields.status = status;
     if (status === "approved") {
@@ -85,7 +87,6 @@ export async function PUT(
       updateFields.role = "user";
     }
   } else {
- 
     updateFields.status = "pending";
     if (role) {
       updateFields.role = role;
@@ -98,7 +99,6 @@ export async function PUT(
 
   const updatedUser = await User.findByIdAndUpdate(id, updateFields, { new: true });
 
-   
   if (
     updatedUser?.status === "pending" &&
     (updatedUser?.role === "admin" || updatedUser?.role === "ambassador")
@@ -109,11 +109,27 @@ export async function PUT(
       token,
       createdAt: new Date(),
     });
-    await sendApprovalEmail(updatedUser, token);
+
+    
+    const userObj = updatedUser.toObject();
+    const user: Users = {
+      _id: userObj._id ? userObj._id.toString() : '',
+      name: userObj.name,
+      email: userObj.email,
+      phoneNumber: typeof userObj.phoneNumber === 'string' 
+        ? Number(userObj.phoneNumber)
+        : userObj.phoneNumber,
+      password: userObj.password,
+      role: userObj.role,
+      status: userObj.status,
+    };
+
+    await sendApprovalEmail(user, token);
   }
 
   return NextResponse.json({ message: 'User updated successfully', user: updatedUser });
 }
+
 
 
 

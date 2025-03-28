@@ -24,7 +24,7 @@ export const uploadPhotoToCloudinary = async (photo: Blob) => {
               console.error('Cloudinary upload error:', error);   
               reject(new Error('Failed to upload photo to Cloudinary'));
             } else {
-              //@ts-ignore
+             //@ts-expect-error: result might be undefined 
               resolve(result.secure_url);  
             }
           }

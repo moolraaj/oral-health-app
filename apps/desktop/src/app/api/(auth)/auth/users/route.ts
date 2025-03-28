@@ -1,3 +1,8 @@
+interface UserQuery {
+  role?: string;
+}
+
+
 import { dbConnect } from '@/database/database';
 import User from '@/models/User';
 import { ReusePaginationMethod } from '@/utils/Pagination';
@@ -10,11 +15,10 @@ export async function GET(req: NextRequest) {
 
     const role = req.nextUrl.searchParams.get('role');
 
-    const query: Record<string, any> = {};
+    const query: UserQuery = {};
     if (role) {
       query.role = role;
     }
-
 
     const users = await User.find(query, {
       id: 1,
@@ -30,14 +34,11 @@ export async function GET(req: NextRequest) {
 
     const totalFilteredUsers = await User.countDocuments(query);
 
-
     let roleCounts: Record<string, number> = {};
 
     if (role) {
-
       roleCounts[role] = totalFilteredUsers;
     } else {
-
       const roles = await User.aggregate([
         { $group: { _id: '$role', count: { $sum: 1 } } },
       ]);
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
       roleCounts = roles.reduce((acc, curr) => {
         acc[curr._id] = curr.count;
         return acc;
-      }, {});
+      }, {} as Record<string, number>);
     }
 
     return NextResponse.json(

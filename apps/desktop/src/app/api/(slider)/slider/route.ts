@@ -3,6 +3,7 @@ import Slider from '@/models/Slider';
 import { EN, KN } from '@/utils/Constants';
 import { getLanguage } from '@/utils/FilterLanguages';
 import { ReusePaginationMethod } from '@/utils/Pagination';
+import {  SBody } from '@/utils/Types';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -15,14 +16,14 @@ export async function GET(request: NextRequest) {
     const totalResults = await Slider.countDocuments();
 
  
-    const localizedData = sliders.map((slide: any) => {
+    const localizedData = sliders.map((slide) => {
       if (lang === EN || lang === KN) {
         return {
           _id: slide._id,
           sliderImage: slide.sliderImage,
           text: { [lang]: slide.text?.[lang] || "" },
           description: { [lang]: slide.description?.[lang] || "" },
-          body: slide.body?.map((b: any) => ({
+          body: slide.body?.map((b:SBody) => ({
             image: b.image,
             text: { [lang]: b.text?.[lang] || "" },
             description: { [lang]: b.description?.[lang] || "" },
@@ -48,8 +49,9 @@ export async function GET(request: NextRequest) {
       limit
     });
   } catch (err) {
-    console.error(err);
-    return NextResponse.json({ success: false, message: 'Failed to fetch sliders' }, { status: 500 });
+    if(err instanceof Error){
+      return NextResponse.json({ success: false, message: 'Failed to fetch sliders' }, { status: 500 });
+    }
   }
 }
 

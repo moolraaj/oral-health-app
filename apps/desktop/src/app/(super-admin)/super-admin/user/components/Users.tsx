@@ -1,16 +1,10 @@
 "use client";
 
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
+import { Users } from "@/utils/Types";
 import { UserCheck } from "lucide-react";
 
-interface IUser {
-  _id: string;
-  name: string;
-  email: string;
-  phoneNumber: string;
-  role: 'user' | 'admin' | 'ambassador' | 'super-admin';
-  status: 'pending' | 'approved' | 'rejected';
-}
+ 
 
 export default function UserLists() {
   const { data: userData, isLoading: ambassadorLoading   } = useGetUsersQuery({
@@ -34,7 +28,7 @@ export default function UserLists() {
           </h2>
 
           <div className="ambass_wrapper">
-            {userData?.users.map((ele: IUser) => (
+            {userData?.users.map((ele: Users) => (
               <div key={ele._id} className="s_ambassa">
                 <ul className="ambass_list u_lists">
                     <li>{ele.name}</li>

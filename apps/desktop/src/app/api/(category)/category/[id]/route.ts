@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    let id=(await params).id
+    const id=(await params).id
     await dbConnect();
     const lang = getLanguage(request);
     const category = await Category.findById({_id:id}).lean<ICategory>();
@@ -37,19 +37,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       success: true,
       data: localizedCategory,
     });
-  } catch (error) {
-    console.error('Get single category error:', error);
-    return NextResponse.json({ success: false, message: 'Failed to fetch category' }, { status: 500 });
+  } catch (err) {
+    if(err instanceof Error){
+
+        return NextResponse.json({ success: false, message: 'Failed to fetch category' }, { status: 500 });
+    }
   }
 }
 
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) {
     try {
-        let id=(await params).id
+        const id=(await params).id
       await dbConnect();
   
       const deletedCategory = await Category.findByIdAndDelete({_id:id});
@@ -66,12 +68,15 @@ export async function DELETE(
         success: true,
         message: 'Category deleted successfully',
       });
-    } catch (error) {
-      console.error('Delete Category Error:', error);
-      return NextResponse.json(
-        { success: false, message: 'Failed to delete category' },
-        { status: 500 }
-      );
+    } catch (err) {
+        if(err instanceof Error){
+
+            return NextResponse.json(
+              { success: false, message: 'Failed to delete category' },
+              { status: 500 }
+            );
+        }
+       
     }
   }
 
@@ -107,7 +112,10 @@ export async function DELETE(
           if (parsedTitle.en) category.title.en = parsedTitle.en;
           if (parsedTitle.kn) category.title.kn = parsedTitle.kn;
         } catch (err) {
-          return NextResponse.json({ success: false, message: 'Invalid title JSON' }, { status: 400 });
+            if(err instanceof Error){
+
+                return NextResponse.json({ success: false, message: 'Invalid title JSON' }, { status: 400 });
+            }
         }
       }
   
@@ -120,8 +128,10 @@ export async function DELETE(
         data: category,
       });
   
-    } catch (error) {
-      console.error('Category Update Error:', error);
-      return NextResponse.json({ success: false, message: 'Failed to update category' }, { status: 500 });
+    } catch (err) {
+        if(err instanceof Error){
+
+            return NextResponse.json({ success: false, message: 'Failed to update category' }, { status: 500 });
+        }
     }
   }

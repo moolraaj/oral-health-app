@@ -33,17 +33,33 @@ const AddSlider = () => {
 
             router.push('/super-admin/slider');
         }
-      } catch (error: any) {
-         
-        toast.error('Failed to create slider');
+      } catch (error) {
+        if(error instanceof Error){
+
+            toast.error('Failed to create slider');
+        }
       }
     };
 
-    const handleBodyChange = (index: number, field: string, lang: string, value: string) => {
-        const updatedBody = [...bodyItems];
-        (updatedBody[index] as any)[field][lang] = value;
-        setBodyItems(updatedBody);
-    };
+    const handleBodyChange = (
+        index: number,
+        field: "text" | "description",
+        lang: "en" | "kn",
+        value: string
+      ) => {
+        setBodyItems((prevItems) => {
+          const updatedItems = [...prevItems];
+          updatedItems[index] = {
+            ...updatedItems[index],
+            [field]: {
+              ...updatedItems[index][field],
+              [lang]: value,
+            },
+          };
+          return updatedItems;
+        });
+      };
+      
 
     const handleImageChange = (index: number, file: File | null) => {
         const updated = [...bodyItems];

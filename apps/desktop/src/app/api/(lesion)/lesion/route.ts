@@ -8,7 +8,7 @@ import { ReusePaginationMethod } from '@/utils/Pagination';
 export async function GET(req: NextRequest) {
     try {
         await dbConnect();
-        let {page,skip,limit}=ReusePaginationMethod(req)
+        const {page,skip,limit}=ReusePaginationMethod(req)
         const lesions = await LesionModel.find().populate('submittedBy', 'name _id').populate('assignedToAdmins', '_id name').skip(skip).limit(limit).exec();
         const totalLesions=await LesionModel.countDocuments()
         return NextResponse.json({
@@ -18,8 +18,11 @@ export async function GET(req: NextRequest) {
             page,
             limit
         }, { status: 200 });
-    } catch (error) {
-        console.error('Error retrieving lesions:', error);
-        return NextResponse.json({ error: 'An error occurred while retrieving lesions.' }, { status: 500 });
+    } catch (err) {
+        if(err instanceof Error){
+
+            return NextResponse.json({ error: 'An error occurred while retrieving lesions.' }, { status: 500 });
+        }
+        
     }
 }

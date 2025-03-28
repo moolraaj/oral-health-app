@@ -1,15 +1,20 @@
+import { GetSlidersQueryParams, Slide, SliderResponse } from "@/utils/Types";
 import { sliderSlice } from "./apiSlider";
+
+ 
+
+ 
 
 export const sliderApi = sliderSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getSliders: builder.query<any, { page?: number; limit?: number; role?: string; lang?: string }>({
+    getSliders: builder.query<SliderResponse, GetSlidersQueryParams>({
       query: ({ page = 1, limit = 10,  lang }) => ({
         url: '/api/slider',
         params: { page, limit,   ...(lang && { lang }) },
       }),
       providesTags: ['Slider'],
     }),
-    getSingleSlider: builder.query<any, { id: string; lang?: string }>({
+    getSingleSlider: builder.query<Slide, { id: string; lang?: string }>({
       query: ({ id, lang }) => ({
         url: `/api/slider/${id}`,
         params: lang ? { lang } : {},
@@ -23,7 +28,7 @@ export const sliderApi = sliderSlice.injectEndpoints({
       }),
       invalidatesTags: ['Slider'],
     }),
-    createSlider: builder.mutation<any, FormData>({
+    createSlider: builder.mutation<Slide, FormData>({
       query: (formData) => ({
         url: '/api/slider/create',
         method: 'POST',
@@ -31,7 +36,7 @@ export const sliderApi = sliderSlice.injectEndpoints({
       }),
       invalidatesTags: ['Slider'],
     }),
-    updateSlider: builder.mutation<any, { id: string; formData: FormData }>({
+    updateSlider: builder.mutation<Slide, { id: string; formData: FormData }>({
       query: ({ id, formData }) => ({
         url: `/api/slider/${id}`,
         method: 'PUT',

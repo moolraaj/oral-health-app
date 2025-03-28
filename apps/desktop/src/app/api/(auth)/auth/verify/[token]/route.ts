@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ token: string }> }
 ) {
 
-    let token=(await params).token
+    const token=(await params).token
  
   const { searchParams } = new URL(req.url);
   const action = searchParams.get('action');

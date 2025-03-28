@@ -71,7 +71,10 @@ export async function POST(req: NextRequest) {
             message: 'Lesion created successfully!',
             lesion: newLesion,
         }, { status: 200 });
-    } catch (error) {
-        return NextResponse.json({ error: 'An error occurred while creating the lesion.' }, { status: 500 });
+    } catch (err) {
+        if(err instanceof Error){
+
+            return NextResponse.json({ error: 'An error occurred while creating the lesion.' }, { status: 500 });
+        }
     }
 }

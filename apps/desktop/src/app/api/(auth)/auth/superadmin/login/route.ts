@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
 
-    // Validate required fields.
+
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required." },
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Ensure the email is exactly that of the super-admin.
+
     if (email !== "superadmin@gmail.com") {
       return NextResponse.json(
         { error: "Invalid super-admin credentials." },
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
 
-    // Find the user by email.
+
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Ensure the user's role is super-admin.
+
     if (user.role !== "super-admin") {
       return NextResponse.json(
         { error: "Not a super-admin account." },
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate password using bcrypt.
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -51,22 +51,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Super-admin login successful (status is assumed to be "approved").
+
     return NextResponse.json(
       {
         message: "Super-admin login successful.",
         user: {
-          id: user._id.toString(),
+          id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role,  
-          status: user.status,  
+          role: user.role,
+          status: user.status,
         },
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Server error." }, { status: 500 });
+  } catch (err) {
+    if (err instanceof Error) {
+      return NextResponse.json({ error: "Server error." }, { status: 500 });
+
+    }
   }
 }

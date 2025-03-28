@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import React from "react";
-import { LayoutDashboard, ShieldCheck, UserCheck, Users, LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { LayoutDashboard, ShieldCheck, UserCheck, Users } from "lucide-react";
+ 
 
 function Sidebar() {
   return (

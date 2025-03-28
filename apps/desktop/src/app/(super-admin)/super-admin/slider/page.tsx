@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useDeleteSliderMutation, useGetSlidersQuery } from '@/(store)/services/slider/sliderApi';
 import ReusableModal from '@/(common)/Model';
+import { Slide } from '@/utils/Types';
 
 const SliderList = () => {
-  const { data: sliders = [], isLoading, refetch } = useGetSlidersQuery({ page: 1, limit: 100 });
+  const { data: sliders, isLoading, refetch } = useGetSlidersQuery({ page: 1, limit: 100 });
   const [deleteSlider] = useDeleteSliderMutation();
   const [showModal, setShowModal] = useState(false);
   const [selectedSliderId, setSelectedSliderId] = useState<string | null>(null);
@@ -16,7 +17,10 @@ const SliderList = () => {
       await deleteSlider(id).unwrap();
       refetch();
     } catch (err) {
-      alert('Failed to delete');
+      if(err instanceof Error){
+        alert('Failed to delete');
+
+      }
     }
   };
 
@@ -41,7 +45,7 @@ const SliderList = () => {
         <p>No sliders found.</p>
       ) : (
         <div className="grid gap-4">
-          {sliders?.result?.map((slider: any) => (
+          {sliders?.result?.map((slider: Slide) => (
             <div key={slider._id} className="border p-4 rounded bg-white shadow">
               <img src={slider.sliderImage} alt="Slider" className="w-64 h-40 object-cover rounded mb-2" />
               <p><b>Text (EN):</b> {slider.text?.en}</p>

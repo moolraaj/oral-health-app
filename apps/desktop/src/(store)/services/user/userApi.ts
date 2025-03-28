@@ -1,10 +1,12 @@
+import { GetUsersQueryParams, PaginatedUsersResponse } from '@/utils/Types';
 import { apiSlice } from './apiSlice';
 
 export const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getUsers: builder.query<any, { page?: number; limit?: number; role?: string }>({
+    getUsers: builder.query<PaginatedUsersResponse, GetUsersQueryParams>({
       query: ({ page = 1, limit = 10, role }) => {
-        const params: any = { page, limit };
+        
+        const params: { page: number; limit: number; role?: string } = { page, limit };
         if (role) params.role = role;
         return {
           url: '/api/auth/users',
@@ -15,7 +17,6 @@ export const userApi = apiSlice.injectEndpoints({
       keepUnusedDataFor: 60,
     }),
   }),
-  
 });
 
 export const { useGetUsersQuery } = userApi;

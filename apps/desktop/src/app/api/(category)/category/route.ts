@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const categories = await Category.find().limit(limit).skip(skip).lean();
     const totalResults = await Category.countDocuments();
 
-    const localizedData = categories.map((category: any) => {
+    const localizedData = categories.map((category) => {
       if (lang === EN || lang === KN) {
         return {
           _id: category._id,
@@ -38,10 +38,14 @@ export async function GET(request: NextRequest) {
       limit,
     });
   } catch (err) {
-    console.error(err);
-    return NextResponse.json(
-      { success: false, message: 'Failed to fetch categories' },
-      { status: 500 }
-    );
+    if(err instanceof Error){
+
+        return NextResponse.json(
+          { success: false, message: 'Failed to fetch categories' },
+          { status: 500 }
+        );
+    }
+
+    
   }
 }

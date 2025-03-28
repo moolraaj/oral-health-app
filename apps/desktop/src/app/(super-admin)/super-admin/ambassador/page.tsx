@@ -1,4 +1,4 @@
-import React from 'react'
+ 
 import ManageAmbassabors from './components/Ambassador'
 
 function page() {

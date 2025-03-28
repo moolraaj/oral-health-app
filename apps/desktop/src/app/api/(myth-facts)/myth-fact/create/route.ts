@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
 
-    // Upload image
+    
     const imageFile = formData.get('myth_fact_image') as File;
     if (!imageFile) {
       return NextResponse.json({ success: false, message: 'Image is required' }, { status: 400 });
@@ -50,8 +50,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ status: 201, success: true, message: 'Myth & Fact created', data: newEntry });
 
-  } catch (err: any) {
-    console.error('Myth & Fact Create Error:', err);
-    return NextResponse.json({ success: false, message: err.message || 'Server Error' }, { status: 500 });
+  } catch (err) {
+    if (err instanceof Error) {
+        return NextResponse.json(
+          { success: false, message: err.message || 'Server Error' },
+          { status: 500 }
+        );
+      }
   }
 }
